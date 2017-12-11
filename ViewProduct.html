@@ -20,13 +20,19 @@
             Giá mới: <input type="text" id="Pricetxt" value=""><br>
             Ngày tạo: <input type="text" id="Datetxt" value=""><br>
             <input id="quantitytoPuttoCart" type='number'><input type="button" value="Add to cart" id="addtocart" onclick="AddtoCart($('#idtxt').val(), $('#quantitytoPuttoCart').val())">
-            
+            <div id="Rating" >
+                <div id="averageRatingDIV">Có <span id="ratingQuantity"> </span> người đánh giá, Trung bình <span id="ratingAverage"></span></div>
+                <div id="RateProduct"><input id="ratingNumber" type="number"><button id="rateButton">Đánh giá</button></div>
+                <div id="editRateProduct"><input id="editRatingNumber" type="number"><button id="editRatingButton">Sửa</button><button id="deleteRatingButton">Xóa</button></div>
+            </div>
         </div>
         <img id="productImageFrame" src="">
     </div>
 
 
     <script type="text/javascript">
+        var pid = getUrlVars()["pid"];
+        var rated = false;
         function AddtoCart(productid, quantity) {
             $.ajax({
                 url: 'http://localhost:25225/api/Cart/AddToCart?pid='+productid +"&q="+quantity,
@@ -46,6 +52,41 @@
             });
         }
 
+        function HaveIRated() {
+            $.ajax({
+                url: 'http://localhost:25225/api/Rating/HaveIrated?pid='+pid,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    if (response.rated == true) {
+                        $('#editRatingNumber').val(response.rating);
+                        rated = true;
+                    }
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function getRatingsofProduct() {
+            $.ajax({
+                url: 'http://localhost:25225/api/Rating/GetAverageRatingsofProduct?pid=' + pid,
+                method: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    $('#ratingQuantity').html(response.count);
+                    $('#ratingAverage').html(response.average);
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
         function getUrlVars() {
             var vars = {};
             var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
@@ -54,10 +95,10 @@
             });
             return vars;
         }
-        var pid = getUrlVars()["pid"];
-        $(document).ready(function () {
+
+        function loadProductInfo() {
             $.ajax({
-                url: 'http://localhost:25225/api/Product/'+pid,
+                url: 'http://localhost:25225/api/Product/' + pid,
                 method: 'GET',
                 contentType: 'application/json',
                 headers: {
@@ -70,7 +111,7 @@
                     $('#Brandtxt').val(response.brandName),
                     $('#Tentxt').val(response.productName),
                     $('#Detailtxt').val(response.Detail),
-                    $('#productImageFrame').attr("src", "http://localhost:25225/"+response.ProductImage);
+                    $('#productImageFrame').attr("src", "http://localhost:25225/" + response.ProductImage);
                     $('#OldPricetxt').val(response.OldPrice),
                     $('#Pricetxt').val(response.Price),
                     $('#Quantitytxt').val(response.Stock),
@@ -82,6 +123,73 @@
                     alert(jqXHR.responseText);
                 }
             });
+        }
+        
+        $(document).ready(function () {
+            $('#rateButton').click(function () {
+                $.ajax({
+                    url: 'http://localhost:25225/api/Rating/RateaProduct?pid=' + pid + '&r=' +$('#ratingNumber').val(),
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+                    success: function (response) {
+                        alert(response);
+                        getRatingsofProduct();
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            });
+
+            $('#editRatingButton').click(function () {
+                $.ajax({
+                    url: 'http://localhost:25225/api/Rating/EditMyRating?pid=' + pid + '&nr=' + $('#editRatingNumber').val(),
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+                    success: function (response) {
+                        alert(response);
+                        getRatingsofProduct();
+                        HaveIRated();
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            })
+
+            $('#deleteRatingButton').click(function () {
+                $.ajax({
+                    url: 'http://localhost:25225/api/Rating/DeleteMyRating?pid=' + pid,
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+                    success: function (response) {
+                        alert(response);
+                        getRatingsofProduct();
+                        HaveIRated();
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            })
+        });
+
+        $(document).ready(function () {
+            loadProductInfo();
+            getRatingsofProduct();
+            HaveIRated();
         });
     </script>
 </body>

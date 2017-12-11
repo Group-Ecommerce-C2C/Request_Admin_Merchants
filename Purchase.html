@@ -14,14 +14,69 @@
             <ul id="cartList"></ul><br>
         </div>
         <div>Tổng tiền: <span id="totalPricetxt"></span></div>
-        
+        <div>
+            Tên: <input type="text" id="nameTxt"><br>
+            Địa chỉ nhận hàng: <input type="text" id="addressTxt"><br>
+            Số điện thoại <input type="text" id="phoneTxt"><br>
+            <button id="purchaseButton">Mua</button>
+        </div>
     </div>
 
 
     <script type="text/javascript">
         $(document).ready(function () {
             LoadAllCart();
+            LoadUserInfomation();
         });
+
+        $(document).ready(function () {
+            $('#purchaseButton').click(function () {
+                var dataJSON = {
+                    Name: $('#nameTxt').val(),
+                    HomeAddress: $('#addressTxt').val(),
+                    PhoneNumber: $('#phoneTxt').val(),
+                };
+                $.ajax({
+                    url: 'http://localhost:25225/api/Orders/MakeOrder',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataJSON),
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+
+                    success: function (response) {
+                        alert(response);
+                    },
+                    // Display errors if any in the Bootstrap alert <div>
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            })
+        });
+            
+        function LoadUserInfomation() {
+            $.ajax({
+                url: 'http://localhost:25225/api/UserInfos/CurrentUserInfo',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#nameTxt').val(response.Name);
+                    $('#addressTxt').val(response.HomeAddress);
+                    $('#phoneTxt').val(response.PhoneNumber);
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
 
         function DeleteFromCart(productIDtoDelete) {
             var cartList = $('#cartList');
@@ -35,8 +90,8 @@
                 },
 
                 success: function (response) {
-                    cartList.empty();
-                    LoadAllCart();
+                    $('#').val(response.Name);
+                    $('#').val(response.Name);
                 },
                 error: function (jqXHR) {
                     alert(jqXHR.responseText);
@@ -71,4 +126,4 @@
         }
     </script>
 </body>
-</html>5
+</html>
