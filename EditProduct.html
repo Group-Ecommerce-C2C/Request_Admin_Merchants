@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="padding-top:20px">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="well">
+
+            Ảnh: <input type="text" id="Anhtxt" value="">
+            <input id="fileUpload" type="file" name="files" /><input id="btnUploadFile" type="button" value="Upload File" class="btn-primary" /><br>
+            Tên sản phẩm: <input type="text" id="Tentxt" value=""><br>
+            Loại sản phẩm: <input type="text" id="productTypetxt" value=""><br>
+            Hãng: <input type="text" id="Brandtxt" value=""><br>
+            Chi tiết: <textarea id="Detailtxt" value=""></textarea><br>
+            Số lượng còn lại: <input type="text" id="Quantitytxt" value=""><br>
+            Giá cũ: <input type="text" id="OldPricetxt" value=""><br>
+            Giá mới: <input type="text" id="Pricetxt" value=""><br>
+            <input type="button" id="editButton" value="Sửa">
+            <input type="button" id="deleteButton" value="Xóa">
+        </div>
+        <img id="productImageFrame" src="">
+    </div>
+
+
+    <script type="text/javascript">
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+            function (m, key, value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+        var pid = getUrlVars()["pid"];
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:25225/api/Products/LoadProductByIDforEdit?id=' + pid,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#productTypetxt').val(response.ProductTypeID),
+                    $('#Brandtxt').val(response.BrandID),
+                    $('#Tentxt').val(response.ProductName),
+                    $('#Detailtxt').val(response.Detail),
+                    $('#Anhtxt').val(response.ProductImage),
+                    $('#OldPricetxt').val(response.OldPrice),
+                    $('#Pricetxt').val(response.Price),
+                    $('#Quantitytxt').val(response.Stock)
+                    
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+
+            $('#editButton').click(function () {
+                var dataJSON = {
+                    ProductTypeID: $('#productTypetxt').val(),
+                    BrandID: $('#Brandtxt').val(),
+                    ProductName: $('#Tentxt').val(),
+                    Detail: $('#Detailtxt').val(),
+                    ProductImage: $('#Anhtxt').val(),
+                    OldPrice: $('#OldPricetxt').val(),
+                    Price: $('#Pricetxt').val(),
+                    Stock: $('#Quantitytxt').val()
+                };
+                $.ajax({
+                    url: 'http://localhost:25225/api/Product/'+pid,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataJSON),
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+
+                    success: function (response) {
+                        alert(response);
+                    },
+                    // Display errors if any in the Bootstrap alert <div>
+                    error: function (jqXHR) {
+                        $('#divErrorText').text(jqXHR.responseText);
+                        $('#divError').show('fade');
+                    }
+                });
+            });
+
+            $('#deleteButton').click(function () {
+                $.ajax({
+                    url: 'http://localhost:25225/api/Product/' + pid,
+                    method: 'DELETE',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+
+                    success: function (response) {
+                        alert(response);
+                    },
+                    // Display errors if any in the Bootstrap alert <div>
+                    error: function (jqXHR) {
+                        $('#divErrorText').text(jqXHR.responseText);
+                        $('#divError').show('fade');
+                    }
+                });
+            });
+
+            $('#btnUploadFile').on('click', function () {
+                var data = new FormData()
+                var files = $("#fileUpload").get(0).files;
+                // Add the uploaded image content to the form data collection
+                if (files.length > 0) {
+                    data.append("UploadedImage", files[0]);
+                }
+                // Make Ajax request with the contentType = false, and procesDate = false
+                var ajaxRequest = $.ajax({
+                    type: "POST",
+                    url: 'http://localhost:25225/api/Upload/user/PostUserImage',
+                    contentType: false,
+                    processData: false,
+                    data: data
+                });
+                ajaxRequest.done(function (xhr, textStatus) {
+                    $('#Anhtxt').val(xhr.Message);
+                    $('#productImageFrame').attr("src", 'http://localhost:25225/'+xhr.Message);
+                });
+            });
+        });
+    </script>
+</body>
+</html>5

@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <script>
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+            function(m,key,value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+        var uid = getUrlVars()["userid"];
+        var token = getUrlVars()["token"];
+        var confirmUrl = 'http://localhost:25225/api/Account/ActivateAccount?userId=' + uid + '&token=' + token;
+        $.ajax({
+            // Post username, password & the grant type to /token
+            url: confirmUrl,
+            method: 'GET',
+            success: function (response) {
+                alert(response.Message);
+            },
+            error: function (jqXHR) {
+                alert(jqXHR.responseText);
+            }
+        });
+    </script>
+</body>
+</html>

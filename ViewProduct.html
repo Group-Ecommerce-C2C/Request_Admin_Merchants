@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="padding-top:20px">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="well">
+            ID sản phẩm: <input type="text" id="idtxt" value=""><br>
+            Tên sản phẩm: <input type="text" id="Tentxt" value=""><br>
+            Loại sản phẩm: <input type="text" id="productTypetxt" value=""><br>
+            Hãng: <input type="text" id="Brandtxt" value=""><br>
+            Chi tiết: <textarea id="Detailtxt" value=""></textarea><br>
+            Số lượng còn lại: <input type="text" id="Quantitytxt" value=""><br>
+            Giá cũ: <input type="text" id="OldPricetxt" value=""><br>
+            Giá mới: <input type="text" id="Pricetxt" value=""><br>
+            Ngày tạo: <input type="text" id="Datetxt" value=""><br>
+            <input id="quantitytoPuttoCart" type='number'><input type="button" value="Add to cart" id="addtocart" onclick="AddtoCart($('#idtxt').val(), $('#quantitytoPuttoCart').val())">
+            
+        </div>
+        <img id="productImageFrame" src="">
+    </div>
+
+
+    <script type="text/javascript">
+        function AddtoCart(productid, quantity) {
+            $.ajax({
+                url: 'http://localhost:25225/api/Cart/AddToCart?pid='+productid +"&q="+quantity,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    alert(response);
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+            function (m, key, value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+        var pid = getUrlVars()["pid"];
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:25225/api/Product/'+pid,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#productTypetxt').val(response.productType),
+                    $('#Brandtxt').val(response.brandName),
+                    $('#Tentxt').val(response.productName),
+                    $('#Detailtxt').val(response.Detail),
+                    $('#productImageFrame').attr("src", "http://localhost:25225/"+response.ProductImage);
+                    $('#OldPricetxt').val(response.OldPrice),
+                    $('#Pricetxt').val(response.Price),
+                    $('#Quantitytxt').val(response.Stock),
+                    $('#Datetxt').val(response.CreationDate),
+                    $('#idtxt').val(response.productID)
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        });
+    </script>
+</body>
+</html>5

@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="padding-top:20px">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="well">
+            Danh sách sản phẩm
+            <ul id="productList"></ul><br>
+            Danh sách sản phẩm đã đăng kí vip
+            <ul id="VIPproductList"></ul>
+        </div>
+        <img id="productImageFrame" src="">
+    </div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            LoadAllProduct();
+            LoadAllPromotedProduct();
+        });
+
+        function PromoteProduct(idofProducttoPromote) {
+            $.ajax({
+                url: 'http://localhost:25225/api/SponsoredItem/Additem?productID=' + idofProducttoPromote,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    alert(response);
+                    LoadAllProduct();
+                    LoadAllPromotedProduct();
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function ExtendPromoteProduct(idofProducttoPromote) {
+            $.ajax({
+                url: 'http://localhost:25225/api/SponsoredItem/ExtendTime?SponsoredItemID=' + idofProducttoPromote,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    alert(response);
+                    LoadAllPromotedProduct();
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function LoadAllProduct() {
+            var productList = $('#productList');
+            productList.empty();
+            $.ajax({
+                url: 'http://localhost:25225/api/Products/LoadAllMyProducts',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        productList.append('<li>' + val.ProductName + ' <a href="http://localhost:33733/EditProduct.html?pid=' + val.ProductID + '">Edit</a> <a href="#" onclick="PromoteProduct(' + val.ProductID + ')"> Đăng Promote</a></li>')
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function LoadAllPromotedProduct() {
+            var VIPproductList = $('#VIPproductList');
+            VIPproductList.empty();
+            $.ajax({
+                url: 'http://localhost:25225/api/SponsoredItems/LoadAllMySponsored',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        VIPproductList.append('<li>' + val.productName + ' Start Date: ' + val.startDate + 'End Date:' + val.endDate + '<a href="#" onclick="ExtendPromoteProduct(' + val.sponsoredItemID + ')"> Gia hạn</a>' + '</li>');
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+        
+    </script>
+</body>
+</html>5

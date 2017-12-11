@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="padding-top:20px">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="well">
+            Danh sách giỏ hàng
+            <ul id="cartList"></ul><br>
+        </div>
+        <img id="productImageFrame" src="">
+    </div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            LoadAllCart();
+        });
+
+        function DeleteFromCart(productIDtoDelete) {
+            var cartList = $('#cartList');
+            $.ajax({
+                url: 'http://localhost:25225/api/Cart/RemoveFromCart?pid=' + productIDtoDelete,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    cartList.empty();
+                    LoadAllCart();
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function LoadAllCart() {
+            var cartList = $('#cartList');
+            cartList.empty();
+            $.ajax({
+                url: 'http://localhost:25225/api/Cart/ViewCart',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        cartList.append('<li>' + 'ID: ' + val.productID + '| Tên: ' + val.productName + ' |Số lượng: ' + val.quantity + '_<button onclick="DeleteFromCart('+val.productID+')">Delete</button></li>')
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+    </script>
+</body>
+</html>5

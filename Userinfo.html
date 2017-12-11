@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="padding-top:20px">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="well">
+            User ID: <input type="text" id="Usertxt" value=""><br>
+            Tên: <input type="text" id="Nametxt" value=""><br>
+            Địa chỉ: <input type="text" id="Addresstxt" value=""><br>
+            Email: <input type="text" id="Emailtxt" value=""><br>
+            Điện thoại: <input type="text" id="Phonetxt" value=""><br>
+            CMND: <input type="text" id="CMNDtxt" value=""><br>
+            <input type="button" id="modifyButton" value="Sửa"> <input type="button" id="requestMerchantButton" value="Reqeust Merchant">
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:25225/api/UserInfos/CurrentUserInfo',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $("#Usertxt").val(response.UserID);
+                    $("#Nametxt").val(response.Name);
+                    $("#Addresstxt").val(response.HomeAddress);
+                    $("#Emailtxt").val(response.Email);
+                    $("#Phonetxt").val(response.PhoneNumber);
+                    $("#CMNDtxt").val(response.CMND);
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+
+            $('#modifyButton').click(function () {
+                var dataJSON = {
+                    Name: $('#Nametxt').val(),
+                    HomeAddress: $('#Addresstxt').val(),
+                    Email: $('#Emailtxt').val(),
+                    PhoneNumber: $('#Phonetxt').val(),
+                    CMND: $('#CMNDtxt').val(),
+                };
+                $.ajax({
+                    url: 'http://localhost:25225/api/UserInfos/CurrentUserInfo',
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataJSON),
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+
+                    success: function (response) {
+                        alert(response.Message);
+                    },
+                    // Display errors if any in the Bootstrap alert <div>
+                    error: function (jqXHR) {
+                        $('#divErrorText').text(jqXHR.responseText);
+                        $('#divError').show('fade');
+                    }
+                });
+            });
+
+            $('#requestMerchantButton').click(function () {
+                $.ajax({
+                    url: 'http://localhost:25225/api/Account/RequestMerchantAccount',
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+
+                    success: function (response) {
+                        alert(response);
+                    },
+                    // Display errors if any in the Bootstrap alert <div>
+                    error: function (jqXHR) {
+                        $('#divErrorText').text(jqXHR.responseText);
+                        $('#divError').show('fade');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>5
