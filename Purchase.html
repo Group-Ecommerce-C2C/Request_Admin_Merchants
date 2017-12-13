@@ -20,6 +20,8 @@
             Số điện thoại <input type="text" id="phoneTxt"><br>
             <button id="purchaseButton">Mua</button>
         </div>
+
+        <div id="myOrder" class="well"></div>
     </div>
 
 
@@ -48,6 +50,14 @@
 
                     success: function (response) {
                         alert(response);
+                        response.reverse();
+                        $.each(response, function (index, val) {
+                            $('#myOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + '</div>');
+                            $.each(val.orderItemIDs, function (index, val2) {
+                                $('#myOrder').append('<div>____Mã món hàng chi tiết: #' + val2.orderItemID + ' | Tên món hàng: ' + val2.productName + ' | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + ' | Tên người bán: ' + val2.shopName + ' | Tên Địa chỉ người bán: ' + val2.shopAddress + ' | Số điện thoại người bán: ' + val2.shopPhoneNumber + ' | Email người bán: ' + val2.shopEmail + '</div>');
+                            })
+                            $('#myOrder').append('<br>');
+                        });
                     },
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {

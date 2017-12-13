@@ -9,6 +9,7 @@
 </head>
 <body style="padding-top:20px">
     <div class="col-md-10 col-md-offset-1">
+        Thông tin cá nhân:
         <div class="well">
             User ID: <input type="text" id="Usertxt" value=""><br>
             Tên: <input type="text" id="Nametxt" value=""><br>
@@ -18,11 +19,13 @@
             CMND: <input type="text" id="CMNDtxt" value=""><br>
             <input type="button" id="modifyButton" value="Sửa"> <input type="button" id="requestMerchantButton" value="Reqeust Merchant">
         </div>
+        Các đơn đặt hàng:
+        <div id="myOrder" class="well"></div>
     </div>
 
 
     <script type="text/javascript">
-        $(document).ready(function () {
+        function LoadUserInfo() {
             $.ajax({
                 url: 'http://localhost:25225/api/UserInfos/CurrentUserInfo',
                 method: 'GET',
@@ -45,6 +48,57 @@
                     alert(jqXHR.responseText);
                 }
             });
+        }
+
+        function LoadOrders() {
+            $('#myOrder').empty();
+            $.ajax({
+                url: 'http://localhost:25225/api/Orders/LoadAllMyOrdersAndOrderItem',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    response.reverse();
+                    $.each(response, function (index, val) {
+                        $('#myOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + '</div>');
+                        $.each(val.orderItemIDs, function (index, val2) {
+                            $('#myOrder').append('<div>____Mã món hàng chi tiết' + val2.orderItemID + ' | Tên món hàng: ' + val2.productName + ' | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + ((val2.orderItemState == "Waiting" || val2.orderItemState == "Shipping") ? "| <a href='#' onclick='CancelanOrder(" + val2.orderItemID + ")'>Hủy</a>" : "" + '</div>'));
+                        })
+                        $('#myOrder').append('<br>');
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function CancelanOrder(orderItemID) {
+            $.ajax({
+                url: 'http://localhost:25225/api/OrderItems/SetToCanceled?oid=' + orderItemID,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    alert(response);
+                    LoadOrders();
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            var myOrder = $('#myOrder');
+            LoadUserInfo();
+            LoadOrders();
 
             $('#modifyButton').click(function () {
                 var dataJSON = {
