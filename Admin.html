@@ -8,40 +8,133 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body style="padding-top:20px">
-    <div class="col-md-10 col-md-offset-1">
-        Chứng từ mua tip vip
-        <div class="well">Tổng số tin được mua: <span id="tongsoluongSpan"></span>, Tổng số doanh thu: <span id="tongdoanhthuSpan"></span></div>
-        <div class="well">
-            <table id="invoiceList" class="table">
-            </table>
+    <div class="container">
+        <h2>Admin</h2>
+        <p>Đây là trang dành cho quản trị viên web, có thể xem doanh thu, xem hóa đơn mua vip theo từng thời điểm trong năm.</p>
+
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#home">Thống kê mua VIP</a></li>
+            <li><a data-toggle="tab" href="#menu1">Tìm kiếm hóa đơn</a></li>
+            <li><a data-toggle="tab" href="#menu2">Rating</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="home" class="tab-pane fade in active">
+                <div>
+                    Chứng từ mua tip vip
+                    <div class="well">
+                        <table id="invoiceList" class="table"></table>
+                    </div>
+                    <div class="well">Tổng số tin được mua: <span id="tongsoluongSpan"></span>, Tổng số doanh thu: <span id="tongdoanhthuSpan"></span></div>
+                    Tháng:
+                    <select id="filterMonth">
+                        <option selected value="">Chọn</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                    Năm:
+                    <select id="filterYear">
+                        <option selected value="">Chọn</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                    </select>
+                    <button id="filterButton" class="button">Lọc</button>
+                </div>
+            </div>
+            <div id="menu1" class="tab-pane fade">
+                <h4>Nhập ID của hóa đơn để tìm kiếm hóa đơn</h4> 
+                <input id="searchOrderTxt" type="text"><button onclick="searchOrderPage();" id="searchOrderButton" class="button">Tìm</button>
+                <div class="center-block ">
+                    <button onclick="previousOrderPage();"><</button> <button onclick="nextOrderPage();">></button> <button onclick="reFresh();">Refresh</button>
+                </div>
+                <div id="myCompleteOrder" class="well"></div>
+            </div>
+            <div id="menu2" class="tab-pane fade">
+                <table id="ratingList" class="table"></table>
+            </div>
+            <div id="menu3" class="tab-pane fade">
+                <h3>Menu 3</h3>
+                <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            </div>
         </div>
-        Tháng:
-        <select id="filterMonth">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-        </select>
-        Năm:
-        <select id="filterYear">
-            <option value="2017">2017</option>
-            <option value="2016">2016</option>
-            <option value="2015">2015</option>
-        </select>
-        <button id="filterButton" class="button">Lọc</button>
     </div>
 
 
     <script type="text/javascript">
         var additionParametter = "";
+        averageAdditionParametter = "";
+        var orderSkip = 0;
+        var orderTake = 5;
+        var orderAdditionParametter = "?skip=" + orderSkip + "&take=" + orderTake;
+
+        //function Bannick(accid)
+        //{
+        //    alert("abc");
+        //    //$('#bannickDIV').show();
+        //    //$('#banIdtxt').val(accid);
+        //}
+
+        function previousOrderPage() {
+            if (orderSkip >= 5) {
+                orderSkip = orderSkip - 5;
+                orderAdditionParametter = "?skip=" + orderSkip + "&take=" + orderTake;
+                LoadOrders();
+            }
+        }
+
+        function searchOrderPage() {
+            orderAdditionParametter = "?orderIDtoSearch=" + $('#searchOrderTxt').val();
+            LoadOrders();
+        }
+
+        function nextOrderPage() {
+            orderSkip = orderSkip + 5;
+            orderAdditionParametter = "?skip=" + orderSkip + "&take=" + orderTake;
+            LoadOrders();
+        }
+
+        function reFresh() {
+            orderSkip = 0;
+            orderAdditionParametter = "";
+            LoadOrders();
+        }
+
+        function LoadOrders() {
+            $('#myCompleteOrder').empty();
+            $.ajax({
+                url: 'http://localhost:25225/api/Orders/LoadAllOrdersAndOrderItem' + orderAdditionParametter,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#myCompleteOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
+                        $.each(val.orderItemIDs, function (index, val2) {
+                            $('#myCompleteOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + '</div>');
+                        })
+                        $('#myCompleteOrder').append('<br>');
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
         function LoadVipNewInvoice() {
             $.ajax({
                 url: 'http://localhost:25225/api/SponsoredNewsOrders' + additionParametter,
@@ -53,7 +146,7 @@
                 },
 
                 success: function (response) {
-                    $('#invoiceList').append('<tr><th>ID</th><th>UserName</th><th>Số lượng</th><th>Đơn giá</th><th>Ngày</th></tr>');
+                    $('#invoiceList').append('<tr><th>ID</th><th>UserName</th><th>Số lượng</th><th>Tổng tiền</th><th>Ngày</th></tr>');
                     $.each(response, function (index, val) {
                         $('#invoiceList').append('<tr>' + '<td>' + val.SponsoredNewsOrderID + '</td>' + '<td>' + val.userName + '</td>' + '<td>' + val.Quantity + '</td>' + '<td>' + val.SumPrice + '</td>' + '<td>' + val.SponsoredNewsOrderDate + '</td>' + '</tr>');
                         
@@ -84,8 +177,34 @@
             });
         }
 
+        function LoadAverageRating() {
+            $.ajax({
+                url: 'http://localhost:25225/api/Rating/GetListOfAverageRatingListByMerchant' + averageAdditionParametter,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#ratingList').append('<tr><th>Tên tài khoản bán</th><th>Điểm trung bình</th><th>Số lần được rate</th></tr>');
+                    $.each(response, function (index, val) {
+                        $('#ratingList').append('<tr>' + '<td> <a href="AdminBanAcc.html?uid=' + val.UserID + '">' + val.UserName + '</a></td>' + '<td>' + val.AverageRating + '</td>' + '<td>' + val.RatingTime + '</td>' + '</tr>');
+
+                    });
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
         $(document).ready(function () {
             LoadVipNewInvoice();
+            LoadOrders();
+            LoadAverageRating();
 
             $('#filterButton').click(function () {
                 $('#invoiceList').empty();
