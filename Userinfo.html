@@ -18,9 +18,19 @@
             Điện thoại: <input type="text" id="Phonetxt" value=""><br>
             CMND: <input type="text" id="CMNDtxt" value=""><br>
             <input type="button" id="modifyButton" value="Sửa"> <input type="button" id="requestMerchantButton" value="Reqeust Merchant">
-        </div>
+        </div><br>
+        Đổi mật khẩu:
+        <div class="well">
+            Mật khẩu cũ: <input type="text" id="oldPasstxt" value=""><br>
+            Mật khẩu mới: <input type="text" id="newPasstxt" value=""><br>
+            Nhập lại mật khẩu mới: <input type="text" id="confirmNewPasstxt" value=""><br>
+            <button id="changePassbtn">Đổi mật khẩu</button>
+        </div><br>
         Các đơn đặt hàng:
         <div id="myOrder" class="well"></div>
+        Lọc theo: <br>
+        Tháng: <input type="text" width="150" id="filterMonth"> Năm: <input type="text" width="150" id="filterYear"> Tổng tiền nhỏ nhất: <input type="text" width="150" id="filterMinTotal"> Tổng tiền lớn nhất: <input type="text" width="150" id="filterMaxTotal"> <button id="filterButton">Lọc</button>
+        <div> ______</div>
     </div>
 
 
@@ -63,9 +73,9 @@
                 success: function (response) {
                     response.reverse();
                     $.each(response, function (index, val) {
-                        $('#myOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + '</div>');
+                        $('#myOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
                         $.each(val.orderItemIDs, function (index, val2) {
-                            $('#myOrder').append('<div>____Mã món hàng chi tiết' + val2.orderItemID + ' | Tên món hàng: ' + val2.productName + ' | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + ((val2.orderItemState == "Waiting" || val2.orderItemState == "Shipping") ? "| <a href='#' onclick='CancelanOrder(" + val2.orderItemID + ")'>Hủy</a>" : "" + '</div>'));
+                            $('#myOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + ((val2.orderItemState == "Waiting" || val2.orderItemState == "Shipping") ? "| <a href='#' onclick='CancelanOrder(" + val2.orderItemID + ")'>Hủy</a>" : "" + '</div>'));
                         })
                         $('#myOrder').append('<br>');
                     });
@@ -100,6 +110,49 @@
             LoadUserInfo();
             LoadOrders();
 
+            $('#filterButton').click(function () {
+                $('#myOrder').empty();
+                var additionParametter = "?";
+                if ($('#filterMonth').val() != null) {
+                    additionParametter = additionParametter + "month=" + $('#filterMonth').val();
+                }
+
+                if ($('#filterYear').val() != null) {
+                    additionParametter = additionParametter + "&year=" + $('#filterYear').val();
+                }
+
+                if ($('#filterMinTotal').val() != null) {
+                    additionParametter = additionParametter + "&minTotalPrice=" + $('#filterMinTotal').val();
+                }
+
+                if ($('#filterMaxTotal').val() != null) {
+                    additionParametter = additionParametter + "&maxTotalPrice=" + $('#filterMaxTotal').val();
+                }
+
+                $.ajax({
+                    url: 'http://localhost:25225/api/Orders/LoadAllMyOrdersAndOrderItem' + additionParametter,
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+                    success: function (response) {
+                        response.reverse();
+                        $.each(response, function (index, val) {
+                            $('#myOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
+                            $.each(val.orderItemIDs, function (index, val2) {
+                                $('#myOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + ((val2.orderItemState == "Waiting" || val2.orderItemState == "Shipping") ? "| <a href='#' onclick='CancelanOrder(" + val2.orderItemID + ")'>Hủy</a>" : "" + '</div>'));
+                            })
+                            $('#myOrder').append('<br>');
+                        });
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            })
+
             $('#modifyButton').click(function () {
                 var dataJSON = {
                     Name: $('#Nametxt').val(),
@@ -120,6 +173,33 @@
 
                     success: function (response) {
                         alert(response.Message);
+                    },
+                    // Display errors if any in the Bootstrap alert <div>
+                    error: function (jqXHR) {
+                        $('#divErrorText').text(jqXHR.responseText);
+                        $('#divError').show('fade');
+                    }
+                });
+            });
+
+            $('#changePassbtn').click(function () {
+                var dataJSON = {
+                    OldPassword: $('#oldPasstxt').val(),
+                    NewPassword: $('#newPasstxt').val(),
+                    ConfirmPassword: $('#confirmNewPasstxt').val(),
+                };
+                $.ajax({
+                    url: 'http://localhost:25225/api/Account/ChangePassword',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataJSON),
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+
+                    success: function (response) {
+                        alert("Đổi mật khẩu thành công");
                     },
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {
@@ -152,4 +232,4 @@
         });
     </script>
 </body>
-</html>5
+</html>

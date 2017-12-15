@@ -10,7 +10,8 @@
 <body style="padding-top:20px">
     <div class="col-md-10 col-md-offset-1">
         <div class="well">
-            ID sản phẩm: <input type="text" id="idtxt" value=""><br>
+            <div hidden>ID sản phẩm: <input type="text" id="idtxt" value=""><br></div>
+            <img width="200" id="productImageFrame" src=""><br>
             Tên sản phẩm: <input type="text" id="Tentxt" value=""><br>
             Loại sản phẩm: <input type="text" id="productTypetxt" value=""><br>
             Hãng: <input type="text" id="Brandtxt" value=""><br>
@@ -20,13 +21,15 @@
             Giá mới: <input type="text" id="Pricetxt" value=""><br>
             Ngày tạo: <input type="text" id="Datetxt" value=""><br>
             <input id="quantitytoPuttoCart" type='number'><input type="button" value="Add to cart" id="addtocart" onclick="AddtoCart($('#idtxt').val(), $('#quantitytoPuttoCart').val())">
-            <div id="Rating" >
-                <div id="averageRatingDIV">Có <span id="ratingQuantity"> </span> người đánh giá, Trung bình <span id="ratingAverage"></span></div>
-                <div id="RateProduct"><input id="ratingNumber" type="number"><button id="rateButton">Đánh giá</button></div>
-                <div id="editRateProduct"><input id="editRatingNumber" type="number"><button id="editRatingButton">Sửa</button><button id="deleteRatingButton">Xóa</button></div>
-            </div>
         </div>
-        <img id="productImageFrame" src="">
+        <div class="well" id="sellerInfo">
+            Người bán: <span id="sellerNameSpan"></span>, Điểm trung bình của người bán: <span id="sellerAverageRatingSpan"></span>
+        </div>
+        <div class="well" id="Rating">
+            <div id="averageRatingDIV">Có <span id="ratingQuantity"> </span> người đánh giá sản phẩm này, Trung bình <span id="ratingAverage"></span></div>
+            <div id="RateProduct"><input id="ratingNumber" type="number"><button id="rateButton">Đánh giá</button></div>
+            <div id="editRateProduct"><input id="editRatingNumber" type="number"><button id="editRatingButton">Sửa</button><button id="deleteRatingButton">Xóa</button></div>
+        </div>
     </div>
 
 
@@ -45,6 +48,26 @@
 
                 success: function (response) {
                     alert(response);
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function GetSellerAverageRating() {
+            $.ajax({
+                url: 'http://localhost:25225/api/Rating/GetAverageRating?productid=' + pid,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#sellerNameSpan').html(response.MerchantName);
+                    $('#sellerAverageRatingSpan').html(response.averageRating);
                 },
                 error: function (jqXHR) {
                     alert(jqXHR.responseText);
@@ -189,8 +212,9 @@
         $(document).ready(function () {
             loadProductInfo();
             getRatingsofProduct();
+            GetSellerAverageRating();
             HaveIRated();
         });
     </script>
 </body>
-</html>5
+</html>

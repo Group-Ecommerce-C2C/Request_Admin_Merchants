@@ -80,7 +80,7 @@
 
                 success: function (response) {
                     $.each(response, function (index, val) {
-                        productList.append('<li>' + val.ProductName + ' <a href="http://localhost:33733/EditProduct.html?pid=' + val.ProductID + '">Edit</a> <a href="#" onclick="PromoteProduct(' + val.ProductID + ')"> Đăng Promote</a></li>')
+                        productList.append('<li><a href="viewProduct.html?pid='+ val.ProductID+'">' + val.ProductName + '</a> <a href="http://localhost:33733/EditProduct.html?pid=' + val.ProductID + '">Edit</a> <a href="#" onclick="PromoteProduct(' + val.ProductID + ')"> Promote</a></li>')
                     });
                 },
                 error: function (jqXHR) {
@@ -103,7 +103,7 @@
 
                 success: function (response) {
                     $.each(response, function (index, val) {
-                        VIPproductList.append('<li>' + val.productName + ' Start Date: ' + val.startDate + 'End Date:' + val.endDate + '<a href="#" onclick="ExtendPromoteProduct(' + val.sponsoredItemID + ')"> Gia hạn</a>' + '</li>');
+                        VIPproductList.append('<li>' + val.productName + ' | Start Date: ' + val.startDate + ' | End Date:' + val.endDate + '<a href="#" onclick="ExtendPromoteProduct(' + val.sponsoredItemID + ')"> Gia hạn</a>' + '</li>');
                     });
                 },
                 error: function (jqXHR) {

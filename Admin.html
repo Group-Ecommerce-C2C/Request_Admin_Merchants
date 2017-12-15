@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="padding-top:20px">
+    <div class="col-md-10 col-md-offset-1">
+        Chứng từ mua tip vip
+        <div class="well">Tổng số tin được mua: <span id="tongsoluongSpan"></span>, Tổng số doanh thu: <span id="tongdoanhthuSpan"></span></div>
+        <div class="well">
+            <table id="invoiceList" class="table">
+            </table>
+        </div>
+        Tháng:
+        <select id="filterMonth">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select>
+        Năm:
+        <select id="filterYear">
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+        </select>
+        <button id="filterButton" class="button">Lọc</button>
+    </div>
+
+
+    <script type="text/javascript">
+        var additionParametter = "";
+        function LoadVipNewInvoice() {
+            $.ajax({
+                url: 'http://localhost:25225/api/SponsoredNewsOrders' + additionParametter,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#invoiceList').append('<tr><th>ID</th><th>UserName</th><th>Số lượng</th><th>Đơn giá</th><th>Ngày</th></tr>');
+                    $.each(response, function (index, val) {
+                        $('#invoiceList').append('<tr>' + '<td>' + val.SponsoredNewsOrderID + '</td>' + '<td>' + val.userName + '</td>' + '<td>' + val.Quantity + '</td>' + '<td>' + val.SumPrice + '</td>' + '<td>' + val.SponsoredNewsOrderDate + '</td>' + '</tr>');
+                        
+                    });
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+            $.ajax({
+                url: 'http://localhost:25225/api/SponsoredNewsOrders/SponsoredNewsAnalysis' + additionParametter,
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#tongsoluongSpan').html(response.sumquantity);
+                    $('#tongdoanhthuSpan').html(response.sumPrice);
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            LoadVipNewInvoice();
+
+            $('#filterButton').click(function () {
+                $('#invoiceList').empty();
+                additionParametter = "?";
+                if ($('#filterMonth').val() != null) {
+                    additionParametter = additionParametter + "month=" + $('#filterMonth').val();
+                }
+
+                if ($('#filterYear').val() != null) {
+                    additionParametter = additionParametter + "&year=" + $('#filterYear').val();
+                }
+                LoadVipNewInvoice();
+            })
+        });
+    </script>
+</body>
+</html>

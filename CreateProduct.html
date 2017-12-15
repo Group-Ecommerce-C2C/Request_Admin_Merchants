@@ -77,8 +77,7 @@
                     },
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {
-                        $('#divErrorText').text(jqXHR.responseText);
-                        $('#divError').show('fade');
+                        alert(jqXHR.responseText);
                     }
                 });
             });

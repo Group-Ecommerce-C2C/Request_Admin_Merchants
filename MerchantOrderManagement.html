@@ -15,11 +15,13 @@
         Các đơn đặt hàng đã trên đường chuyển phát:
         <div id="myShippingOrder" class="well"></div>
 
-        Các đơn đặt hàng đã bị hủy:
+        Các món hàng bị khách hàng hủy:
         <div id="myCanceledOrder" class="well"></div>
 
         Các đơn đặt hàng đã xong hoàn toàn:
         <div id="myCompleteOrder" class="well"></div>
+        Lọc theo: <br>
+        Tháng: <input type="text" width="150" id="filterMonth"> Năm: <input type="text" width="150" id="filterYear"> Tổng tiền nhỏ nhất: <input type="text" width="150" id="filterMinTotal"> Tổng tiền lớn nhất: <input type="text" width="150" id="filterMaxTotal"> <button id="filterButton">Lọc</button>
     </div>
 
 
@@ -38,9 +40,9 @@
                 success: function (response) {
                     response.reverse();
                     $.each(response, function (index, val) {
-                        $('#myWaitingOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + '</div>');
+                        $('#myWaitingOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
                         $.each(val.orderItemIDs, function (index, val2) {
-                            $('#myWaitingOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + ' | Tên món hàng: ' + val2.productName + ' | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice  + ' | Trạng thái: ' + val2.orderItemState + (val2.orderItemState == "Waiting" ? "| <a href='#' onclick='SwitchAnOrderToShipping(" + val2.orderItemID + ")'>Xác nhận</a>" : "" + '</div>'));
+                            $('#myWaitingOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + (val2.orderItemState == "Waiting" ? "| <a href='#' onclick='SwitchAnOrderToShipping(" + val2.orderItemID + ")'>Xác nhận</a>" : "" + '</div>'));
                         })
                         $('#myWaitingOrder').append('<br>');
                     });
@@ -64,9 +66,9 @@
                 success: function (response) {
                     response.reverse();
                     $.each(response, function (index, val) {
-                        $('#myShippingOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + '</div>');
+                        $('#myShippingOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
                         $.each(val.orderItemIDs, function (index, val2) {
-                            $('#myShippingOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + ' | Tên món hàng: ' + val2.productName + ' | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + (val2.orderItemState == "Shipping" ? "| <a href='#' onclick='SwitchAnOrderToDone(" + val2.orderItemID + ")'>Hoàn thành</a>" : "" + '</div>'));
+                            $('#myShippingOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + (val2.orderItemState == "Shipping" ? "| <a href='#' onclick='SwitchAnOrderToDone(" + val2.orderItemID + ")'>Hoàn thành</a>" : "" + '</div>'));
                         })
                         $('#myShippingOrder').append('<br>');
                     });
@@ -90,9 +92,9 @@
                 success: function (response) {
                     response.reverse();
                     $.each(response, function (index, val) {
-                        $('#myCanceledOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + '</div>');
+                        $('#myCanceledOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
                         $.each(val.orderItemIDs, function (index, val2) {
-                            $('#myCanceledOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + ' | Tên món hàng: ' + val2.productName + ' | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice  + ' | Trạng thái: ' + val2.orderItemState + '</div>');
+                            $('#myCanceledOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + '</div>');
                         })
                         $('#myCanceledOrder').append('<br>');
                     });
@@ -116,9 +118,9 @@
                 success: function (response) {
                     response.reverse();
                     $.each(response, function (index, val) {
-                        $('#myCompleteOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + '</div>');
+                        $('#myCompleteOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
                         $.each(val.orderItemIDs, function (index, val2) {
-                            $('#myCompleteOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + ' | Tên món hàng: ' + val2.productName + ' | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + '</div>');
+                            $('#myCompleteOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + '</div>');
                         })
                         $('#myCompleteOrder').append('<br>');
                     });
@@ -200,6 +202,50 @@
             LoadShippingOrders();
             LoadCanceledOrders();
             LoadCompletedOrders();
+
+            $('#filterButton').click(function () {
+                $('#myCompleteOrder').empty();
+                var additionParametter = "?";
+                if ($('#filterMonth').val() != null)
+                {
+                    additionParametter = additionParametter + "month=" + $('#filterMonth').val();
+                }
+
+                if ($('#filterYear').val() != null) {
+                    additionParametter = additionParametter + "&year=" + $('#filterYear').val();
+                }
+
+                if ($('#filterMinTotal').val() != null) {
+                    additionParametter = additionParametter + "&minTotalPrice=" + $('#filterMinTotal').val();
+                }
+
+                if ($('#filterMaxTotal').val() != null) {
+                    additionParametter = additionParametter + "&maxTotalPrice=" + $('#filterMaxTotal').val();
+                }
+
+                $.ajax({
+                    url: 'http://localhost:25225/api/Orders/LoadAllMyMerchantCompleteOrders' + additionParametter,
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+                    success: function (response) {
+                        response.reverse();
+                        $.each(response, function (index, val) {
+                            $('#myCompleteOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
+                            $.each(val.orderItemIDs, function (index, val2) {
+                                $('#myCompleteOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + '</div>');
+                            })
+                            $('#myCompleteOrder').append('<br>');
+                        });
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            })
         });
     </script>
 </body>
