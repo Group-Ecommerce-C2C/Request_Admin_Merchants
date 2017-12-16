@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Admin</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -60,11 +60,12 @@
                 <div id="menu1" class="tab-pane fade">
                     <h4>Nhập ID của hóa đơn để tìm kiếm hóa đơn</h4>
                     <input id="searchOrderTxt" type="text"><button onclick="searchOrderPage();" id="searchOrderButton" class="button">Tìm</button>
+                    <h4>Các hóa đơn gần đây: </h4>
+                    <div id="myCompleteOrder" class="well"></div>
                     <div class="center-block ">
                         <button onclick="previousOrderPage();"><</button> <button onclick="nextOrderPage();">></button> <button onclick="reFresh();">Refresh</button>
                     </div>
-                    <div id="myCompleteOrder" class="well"></div>
-                    <div>Lọc theo ngày: <input id="locOrdertheoNgay" type="date"> Lọc theo người mua: <input id="locTheoNguoiMua" type="text"> Lọc theo người bán: <input id="locTheoNguoiBan" type="text"><button id="locOrder">Lọc</button><p> </p></div>
+                    <div class="well">Lọc theo ngày: <input id="locOrdertheoNgay" type="date"> Lọc theo người mua: <input id="locTheoNguoiMua" type="text"> Lọc theo người bán: <input id="locTheoNguoiBan" type="text"><button id="locOrder">Lọc</button><p> </p></div>
                 </div>
                 <div id="menu2" class="tab-pane fade">
                     <table id="ratingList" class="table"></table>
@@ -121,6 +122,7 @@
                     <input ng-model="TenProductCanTim" type="text"><button ng-click="TimProduct(TenProductCanTim)">Tìm</button>
                 </div>
             </div>
+            <div style='float: right;'><button id="dangxuatButton" class="button small">Đăng xuất Admin</button></div>
         </div>
         <script>
             var app = angular.module('myApp', []);
@@ -501,6 +503,9 @@
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {
                         alert(jqXHR.responseText);
+                        //if (response == false) {
+                        //    document.write("Có lỗi xảy ra");
+                        //}
                     }
                 });
             }
@@ -536,6 +541,10 @@
                         orderAdditionParametter = orderAdditionParametter + "&seller=" + document.getElementById('locTheoNguoiBan').value;
                     }
                     LoadOrders();
+                })
+                $('#dangxuatButton').click(function () {
+                    window.localStorage.removeItem("accessToken");
+                    window.location.href = "AdminLogin.html"
                 })
             });
         </script>
