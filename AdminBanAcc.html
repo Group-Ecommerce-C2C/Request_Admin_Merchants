@@ -8,11 +8,24 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
+    <div class="well">
+        <p>Tên: <span id="tenTXT"></span></p>
+        <p>Địa chỉ: <span id="diachiTXT"></span></p>
+        <p>Số điện thoại <span id="dtTXT"></span></p>
+        <p>CMND <span id="cmndTXT"></span></p>
+
+    </div>
     <div id="BanAcc" class="well">
+        <h4>Ban nick này: </h4>
         User ID: <input id="userIDtxt" type="text"><br>
-        Lý do = <input id="reasontxt" type="text"><br>
+        Lý do: <textarea id="reasontxt" type="text"></textarea><br>
         Ban đến ngày: <input id="datetxt" type="date" />
         <button id="banBtn">Ban</button>
+    </div>
+    <div id="unBanAcc" class="well">
+        <p>Acc này đang bị ban</p>
+        <p>Nguyên nhân: <span id="nguyennhantxt"></span></p>
+        <button id="GoBanButton">Gỡ ban ACC</button>
     </div>
     <script>
         function getUrlVars() {
@@ -23,8 +36,57 @@
             });
             return vars;
         }
+        function loadInformation() {
+            $.ajax({
+                url: 'http://localhost:25225/api/UserInfos/LoadUserInfoByUserID?uid=' + getUrlVars()["uid"],
+                method: 'GET',
+                //contentType: 'application/json',
+                //data: JSON.stringify(dataJSON),
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    $('#tenTXT').html(response.Name);
+                    $('#diachiTXT').html(response.HomeAddress);
+                    $('#dtTXT').html(response.PhoneNumber);
+                    $('#cmndTXT').html(response.CMND);
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function checkBan() {
+            $.ajax({
+                url: 'http://localhost:25225/api/BanAccount/CheckBanByUserID?uid=' + getUrlVars()["uid"],
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    if (response.banned == true) {
+                        $('#unBanAcc').show();
+                        $('#BanAcc').hide();
+                        $('#nguyennhantxt').html(response.reason);
+                    }
+                    else {
+                        $('#unBanAcc').hide();
+                        $('#BanAcc').show();
+                    }
+                },
+            });
+        }
+
         $('#userIDtxt').val(getUrlVars()["uid"]);
         $(document).ready(function () {
+            loadInformation();
+            checkBan();
             $('#banBtn').click(function () {
                 var dataJSON = {
                     UserID: $('#userIDtxt').val(),
@@ -42,15 +104,33 @@
                     },
 
                     success: function (response) {
-                        alert(response.Message);
+                        alert("Đã ban");
+                        checkBan();
                     },
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {
-                        $('#divErrorText').text(jqXHR.responseText);
-                        $('#divError').show('fade');
+                        alert(jqXHR.responseText);
                     }
                 });
             });
+            $('#GoBanButton').click(function () {
+                $.ajax({
+                    url: 'http://localhost:25225/api/BanAccount/RemoveBan?uid=' + getUrlVars()["uid"],
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+                    success: function (response) {
+                        alert(response);
+                        checkBan();
+                    },
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            })
         })
     </script>
 </body>

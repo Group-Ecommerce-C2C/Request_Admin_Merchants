@@ -20,7 +20,7 @@
                 <li><a data-toggle="tab" href="#menu2">Rating</a></li>
                 <li><a data-toggle="tab" href="#menu3">Loại Sản Phẩm</a></li>
                 <li><a data-toggle="tab" href="#menu4">Nhãn hiệu</a></li>
-                <li><a data-toggle="tab" href="#menu5">ABC</a></li>
+                <li><a data-toggle="tab" href="#menu5">Danh sách sản phẩm</a></li>
             </ul>
 
             <div class="tab-content">
@@ -64,7 +64,7 @@
                         <button onclick="previousOrderPage();"><</button> <button onclick="nextOrderPage();">></button> <button onclick="reFresh();">Refresh</button>
                     </div>
                     <div id="myCompleteOrder" class="well"></div>
-                    Lọc theo ngày: <input id="locOrdertheoNgay" type="date"> Lọc theo người mua: <input id="locTheoNguoiMua" type="text"><button id="locOrder">Lọc</button>
+                    <div>Lọc theo ngày: <input id="locOrdertheoNgay" type="date"> Lọc theo người mua: <input id="locTheoNguoiMua" type="text"> Lọc theo người bán: <input id="locTheoNguoiBan" type="text"><button id="locOrder">Lọc</button><p> </p></div>
                 </div>
                 <div id="menu2" class="tab-pane fade">
                     <table id="ratingList" class="table"></table>
@@ -104,14 +104,28 @@
                     </table>
                 </div>
                 <div id="menu5" class="tab-pane fade">
-                    <h3>Menu 3</h3>
-                    <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                    <h3>Danh Sách các sản phẩm mới đăng</h3>
+                    <table class="table" appml-data="dataObj">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Giá</th>
+                        </tr>
+                        <tr ng-repeat="z in names3">
+                            <td>{{z.ProductID}}</td>
+                            <td><a href="viewProduct.html?pid={{z.ProductID}}">{{z.ProductName}}</a></td>
+                            <td>{{z.Price}}</td>
+                            <!--<td ng-click="XoaSanPham(z.ProductID)">Xóa</td>-->
+                        </tr>
+                    </table>
+                    <input ng-model="TenProductCanTim" type="text"><button ng-click="TimProduct(TenProductCanTim)">Tìm</button>
                 </div>
             </div>
         </div>
         <script>
             var app = angular.module('myApp', []);
             app.controller('customersCtrl', function ($scope, $http) {
+                CheckAdminRole();
                 $http({
                     method: "GET",
                     url: "http://localhost:25225/api/ProductTypes"
@@ -126,6 +140,15 @@
                     url: "http://localhost:25225/api/Brands"
                 }).then(function mySuccess(response) {
                     $scope.names2 = response.data;
+                }, function myError(response) {
+                    alert(response.statusText);
+                });
+
+                $http({
+                    method: "GET",
+                    url: "http://localhost:25225/api/Product?sort=dsc&take=10"
+                }).then(function mySuccess(response) {
+                    $scope.names3 = response.data;
                 }, function myError(response) {
                     alert(response.statusText);
                 });
@@ -150,6 +173,29 @@
                             url: "http://localhost:25225/api/ProductTypes"
                         }).then(function mySuccess(response) {
                             $scope.names = response.data;
+                        }, function myError(response) {
+                            alert(response.statusText);
+                        });
+                    }, function myError(response) {
+                        alert(response.data);
+                    });
+                };
+
+                $scope.XoaSanPham = function (idcansua) {
+                    $http({
+                        method: "DELETE",
+                        url: "http://localhost:25225/api/Products/DeleteProductForAdmin?id=" + idcansua,
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.accessToken,
+                            'Content-Type': 'application/json',
+                        }
+                    }).then(function mySuccess(response) {
+                        alert(response.data);
+                        $http({
+                            method: "GET",
+                            url: "http://localhost:25225/api/Product?sort=dsc&take=10"
+                        }).then(function mySuccess(response) {
+                            $scope.names3 = response.data;
                         }, function myError(response) {
                             alert(response.statusText);
                         });
@@ -190,7 +236,7 @@
                         method: "POST",
                         url: "http://localhost:25225/api/ProductTypes?id=" + $scope.productIDCanSua,
                         data: {
-                            ProductTypeName: $scope.BrandNameCanSua,
+                            ProductTypeName: $scope.productNameCanSua,
                         },
                         headers: {
                             'Authorization': 'Bearer ' + localStorage.accessToken,
@@ -198,10 +244,9 @@
                         },
 
                     }).then(function mySuccess(response) {
-                        alert(response.data);
                         $http({
                             method: "GET",
-                            url: "http://localhost:25225/api/Brands"
+                            url: "http://localhost:25225/api/ProductTypes"
                         }).then(function mySuccess(response) {
                             $scope.names = response.data;
                         }, function myError(response) {
@@ -240,6 +285,17 @@
                     });
                 };
 
+                $scope.TimProduct = function (tencantim) {
+                    $http({
+                        method: "GET",
+                        url: "http://localhost:25225/api/Products/SearchProduct?name="+tencantim
+                    }).then(function mySuccess(response) {
+                        $scope.names3 = response.data;
+                    }, function myError(response) {
+                        alert(response.statusText);
+                    });
+                };
+
                 $scope.SuaBrandBTN = function () {
                     $http({
                         method: "PUT",
@@ -253,7 +309,6 @@
                         },
 
                     }).then(function mySuccess(response) {
-                        alert(response.data);
                         $http({
                             method: "GET",
                             url: "http://localhost:25225/api/Brands"
@@ -427,7 +482,31 @@
                 });
             }
 
+            function CheckAdminRole() {
+                $.ajax({
+                    url: 'http://localhost:25225/api/Account/AmIinole?role=Admin',
+                    method: 'GET',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer '
+                            + localStorage.accessToken
+                    },
+
+                    success: function (response) {
+                        if(response == false)
+                        {
+                            document.write("Bạn không có quyền Admin");
+                        }
+                    },
+                    // Display errors if any in the Bootstrap alert <div>
+                    error: function (jqXHR) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+            }
+
             $(document).ready(function () {
+                
                 LoadVipNewInvoice();
                 LoadOrders();
                 LoadAverageRating();
@@ -453,7 +532,9 @@
                     if (document.getElementById('locTheoNguoiMua').value != "") {
                         orderAdditionParametter = orderAdditionParametter + "&buyer=" + document.getElementById('locTheoNguoiMua').value;
                     }
-                    alert(orderAdditionParametter);
+                    if (document.getElementById('locTheoNguoiBan').value != "") {
+                        orderAdditionParametter = orderAdditionParametter + "&seller=" + document.getElementById('locTheoNguoiBan').value;
+                    }
                     LoadOrders();
                 })
             });
