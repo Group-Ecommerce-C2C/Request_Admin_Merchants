@@ -120,7 +120,7 @@
                     $.each(response, function (index, val) {
                         $('#myCompleteOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + ' | Tên khách hàng: ' + val.orderNameofUser + ' | Địa chỉ: ' + val.orderAddress + ' | Điện thoại: ' + val.orderPhoneNumber + ' | Tổng tiền: ' + val.orderTotalPrice + '</div>');
                         $.each(val.orderItemIDs, function (index, val2) {
-                            $('#myCompleteOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + '</div>');
+                            $('#myCompleteOrder').append('<div>____Mã món hàng chi tiết: ' + val2.orderItemID + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + '| Tên món hàng:  <a href="ViewProduct.html?pid=' + val2.itemID + '">' + val2.productName + '</a> | Số lượng: ' + val2.orderItemQuantity + ' | Thành tiền: ' + val2.orderItemPrice + ' | Trạng thái: ' + val2.orderItemState + '</div>');
                         })
                         $('#myCompleteOrder').append('<br>');
                     });
