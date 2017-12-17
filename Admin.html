@@ -26,9 +26,10 @@
             <div class="tab-content">
                 <div id="home" class="tab-pane fade in active">
                     <div>
-                        Chứng từ mua tip vip
+                        <h4>Chứng từ mua tin vip gần đây:</h4>
                         <div class="well">
                             <table id="invoiceList" class="table"></table>
+                            <button onclick="trangtruocInvoiceList()">Trước</button><button onclick="trangsauInvoiceList()">Sau</button>
                         </div>
                         <div class="well">Tổng số tin được mua: <span id="tongsoluongSpan"></span>, Tổng số doanh thu: <span id="tongdoanhthuSpan"></span></div>
                         Tháng:
@@ -355,11 +356,27 @@
 
 
         <script type="text/javascript">
-            var additionParametter = "";
+            var additionParametter = "?";
             averageAdditionParametter = "";
             var orderSkip = 0;
             var orderTake = 5;
             var orderAdditionParametter = "?skip=" + orderSkip + "&take=" + orderTake;
+
+            var skipInvoice = 0;
+            var takeInvoice = 10;
+
+            function trangtruocInvoiceList() {
+                if (skipInvoice >= 10) {
+                    skipInvoice = skipInvoice - 10;
+                }
+                //parameter = "&skip=" + skip + "&take=" + take;
+                LoadVipNewInvoice();
+            }
+            function trangsauInvoiceList() {
+                skipInvoice = skipInvoice + 10;
+                //parameter = "&skip=" + skip + "&take=" + take;
+                LoadVipNewInvoice();
+            }
 
             //function Bannick(accid)
             //{
@@ -419,8 +436,9 @@
             }
 
             function LoadVipNewInvoice() {
+                $('#invoiceList').empty();
                 $.ajax({
-                    url: 'http://localhost:25225/api/SponsoredNewsOrders' + additionParametter,
+                    url: 'http://localhost:25225/api/SponsoredNewsOrders' + additionParametter + "&skip=" + skipInvoice + "&take="+ takeInvoice,
                     method: 'GET',
                     contentType: 'application/json',
                     headers: {
@@ -520,7 +538,7 @@
                     $('#invoiceList').empty();
                     additionParametter = "?";
                     if ($('#filterMonth').val() != null) {
-                        additionParametter = additionParametter + "month=" + $('#filterMonth').val();
+                        additionParametter = additionParametter + "&month=" + $('#filterMonth').val();
                     }
 
                     if ($('#filterYear').val() != null) {

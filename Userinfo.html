@@ -14,7 +14,7 @@
             User ID: <input type="text" id="Usertxt" value=""><br>
             Tên: <input type="text" id="Nametxt" value=""><br>
             Địa chỉ: <input type="text" id="Addresstxt" value=""><br>
-            Email: <input type="text" id="Emailtxt" value=""><br>
+            Email phụ: <input type="text" id="Emailtxt" value=""><br>
             Điện thoại: <input type="text" id="Phonetxt" value=""><br>
             CMND: <input type="text" id="CMNDtxt" value=""><br>
             <input type="button" id="modifyButton" value="Sửa"> <input type="button" id="requestMerchantButton" value="Reqeust Merchant">
@@ -172,7 +172,7 @@
                     },
 
                     success: function (response) {
-                        alert(response.Message);
+                        alert(response);
                     },
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {

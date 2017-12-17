@@ -10,24 +10,63 @@
 <body style="padding-top:20px">
     <div class="col-md-10 col-md-offset-1">
         <div class="well">
-
-            Ảnh: <input type="text" id="Anhtxt" value="">
+            <img width="50" height="50" id="productImageFrame" src="">
+            Ảnh: <input type="text" id="Anhtxt" value="" hidden>
             <input id="fileUpload" type="file" name="files" /><input id="btnUploadFile" type="button" value="Upload File" class="btn-primary" /><br>
-            Tên sản phẩm: <input type="text" id="Tentxt" value=""><br>
-            Loại sản phẩm: <input type="text" id="productTypetxt" value=""><br>
-            Hãng: <input type="text" id="Brandtxt" value=""><br>
-            Chi tiết: <textarea id="Detailtxt" value=""></textarea><br>
-            Số lượng còn lại: <input type="text" id="Quantitytxt" value=""><br>
-            Giá cũ: <input type="text" id="OldPricetxt" value=""><br>
-            Giá mới: <input type="text" id="Pricetxt" value=""><br>
+            <br>
+            Tên sản phẩm: <br><input type="text" id="Tentxt" value=""><br>
+            Loại sản phẩm: <br><select id="loaisanphamSelectList"></select><br>
+            Hãng: <br><select id="hangSelectList"></select><br>
+            Chi tiết: <br><textarea id="Detailtxt" value=""></textarea><br>
+            Số lượng còn lại: <br><input type="text" id="Quantitytxt" value=""><br>
+            Giá cũ: <br><input type="text" id="OldPricetxt" value=""><br>
+            Giá mới: <br><input type="text" id="Pricetxt" value=""><br>
             <input type="button" id="editButton" value="Sửa">
             <input type="button" id="deleteButton" value="Xóa">
         </div>
-        <img id="productImageFrame" src="">
     </div>
 
 
     <script type="text/javascript">
+        function loadProducType() {
+            $.ajax({
+                url: 'http://localhost:25225/api/ProductTypes',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#loaisanphamSelectList').append(new Option(val.ProductTypeName, val.ProductTypeID));
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+
+            $.ajax({
+                url: 'http://localhost:25225/api/Brands',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#hangSelectList').append(new Option(val.BrandName, val.BrandID));
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+
         function getUrlVars() {
             var vars = {};
             var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
@@ -38,6 +77,7 @@
         }
         var pid = getUrlVars()["pid"];
         $(document).ready(function () {
+            loadProducType();
             $.ajax({
                 url: 'http://localhost:25225/api/Products/LoadProductByIDforEdit?id=' + pid,
                 method: 'GET',
@@ -48,11 +88,12 @@
                 },
 
                 success: function (response) {
-                    $('#productTypetxt').val(response.ProductTypeID),
-                    $('#Brandtxt').val(response.BrandID),
+                    $('#loaisanphamSelectList').val(response.ProductTypeID),
+                    $('#hangSelectList').val(response.BrandID),
                     $('#Tentxt').val(response.ProductName),
                     $('#Detailtxt').val(response.Detail),
                     $('#Anhtxt').val(response.ProductImage),
+                    $('#productImageFrame').attr("src", 'http://localhost:25225/' + response.ProductImage);
                     $('#OldPricetxt').val(response.OldPrice),
                     $('#Pricetxt').val(response.Price),
                     $('#Quantitytxt').val(response.Stock)
@@ -66,8 +107,8 @@
 
             $('#editButton').click(function () {
                 var dataJSON = {
-                    ProductTypeID: $('#productTypetxt').val(),
-                    BrandID: $('#Brandtxt').val(),
+                    ProductTypeID: $('#loaisanphamSelectList').val(),
+                    BrandID: $('#hangSelectList').val(),
                     ProductName: $('#Tentxt').val(),
                     Detail: $('#Detailtxt').val(),
                     ProductImage: $('#Anhtxt').val(),
@@ -87,6 +128,7 @@
 
                     success: function (response) {
                         alert(response);
+                        window.location.href = "ProductManagerment.html";
                     },
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {
@@ -108,6 +150,7 @@
 
                     success: function (response) {
                         alert(response);
+                        window.location.href = "ProductManagerment.html";
                     },
                     // Display errors if any in the Bootstrap alert <div>
                     error: function (jqXHR) {
@@ -134,10 +177,11 @@
                 });
                 ajaxRequest.done(function (xhr, textStatus) {
                     $('#Anhtxt').val(xhr.Message);
+                    alert("Đã up ảnh thành công");
                     $('#productImageFrame').attr("src", 'http://localhost:25225/'+xhr.Message);
                 });
             });
         });
     </script>
 </body>
-</html>5
+</html>

@@ -49,7 +49,7 @@
                     },
 
                     success: function (response) {
-                        alert(response);
+                        alert("Đã đặt mua thành công");
                         response.reverse();
                         $.each(response, function (index, val) {
                             $('#myOrder').append('<div>Mã Hóa Đơn ID: ' + val.orderID + ' | Ngày đặt: ' + val.orderDate + '</div>');

@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Index</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <div class="well">
+                <h3>Tìm kiếm nâng cao, tìm theo các điều kiện:</h3>
+                Tên: <input class="input-sm" id="nameINPUT" type="text"> | Loại sản phẩm: <select id="loaisanphamSelectList"><option value="">Chọn</option></select> | Nhãn hiệu <select id="hangSelectList"><option value="">Chọn</option></select> | Giá tối thiểu: <input id="giatoithieuINPUT" class="input-sm" type="number"> | Giá tối đa: <input id="giatoidaINPUT" class="input-sm" type="number">
+                <button id="searchBUTTON" class="btn-primary btn-lg">Search</button>            
+            </div>
+            <div class="bg-info">
+                <div id="newestProduct"></div>
+            </div>
+            <button onclick="previousNewestProductPage()">Trước</button>   <button onclick="nextNewestProductPage()">Sau</button>
+        </div>
+    </div>
+    <script>
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+            function (m, key, value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+        var name = getUrlVars()["name"];
+        var parameter;
+        if (name != "undefined")
+        {
+            parameter = "?name=" + name;
+            alert(parameter);
+        }
+        else {
+            var productidTemp = ($('#loaisanphamSelectList').val() == null ? productidTemp = "" : productidTemp = $('#loaisanphamSelectList').val());
+            var brandidTemp = ($('#hangSelectList').val() == null ? brandidTemp = "" : brandidTemp = $('#hangSelectList').val());
+            var parameter = "?name=" + $('#nameINPUT').val() + "&productTypeid=" + productidTemp + "&brandId=" + brandidTemp + "&priceMin=" + $('#giatoithieuINPUT').val() + "&priceMax=" + $('#giatoidaINPUT').val();
+
+        }
+        var skip = 0;
+        var take = 10;
+        function previousNewestProductPage() {
+            if (skip >= 10) {
+                skip = skip - 10;
+            }
+            //parameter = "&skip=" + skip + "&take=" + take;
+            LoadNewestProducts()
+        }
+        function nextNewestProductPage() {
+            skip = skip + 10;
+            //parameter = "&skip=" + skip + "&take=" + take;
+            LoadNewestProducts()
+        }
+        function LoadNewestProducts() {
+            $('#newestProduct').empty();
+            alert(parameter);
+            $.ajax({
+                url: 'http://localhost:25225/api/Products/SearchProduct' + parameter +"&skip=" + skip + "&take=" + take,
+                method: 'GET',
+                contentType: 'application/json',
+                //headers: {
+                //    'Authorization': 'Bearer '
+                //        + localStorage.accessToken
+                //},
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#newestProduct').append('<div style="padding: 5px 5px 5px;"><a href="' + "http://localhost:33733/viewProduct.html?pid=" + val.ProductID + '"><img src="' + "http://localhost:25225/" + val.ProductImage + '" width = "40" height= "40"> Tên: ' + val.ProductName + ' | Giá: ' + val.Price + ' | SL còn: ' + val.Stock + '</a></div>');
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+        
+        function loadProducType() {
+            $.ajax({
+                url: 'http://localhost:25225/api/ProductTypes',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#loaisanphamSelectList').append(new Option(val.ProductTypeName, val.ProductTypeID));
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+
+            $.ajax({
+                url: 'http://localhost:25225/api/Brands',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#hangSelectList').append(new Option(val.BrandName, val.BrandID));
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+        $(document).ready(function () {
+            LoadNewestProducts();
+            loadProducType();
+            $('#searchBUTTON').click(function () {
+                productidTemp = ($('#loaisanphamSelectList').val() == null ? productidTemp = "" : productidTemp = $('#loaisanphamSelectList').val());
+                brandidTemp = ($('#hangSelectList').val() == null ? brandidTemp = "" : brandidTemp = $('#hangSelectList').val());
+                parameter = "?name=" + $('#nameINPUT').val() + "&productTypeid=" + productidTemp + "&brandId=" + brandidTemp + "&priceMin=" + $('#giatoithieuINPUT').val() + "&priceMax=" + $('#giatoidaINPUT').val();
+                alert(parameter);
+                LoadNewestProducts();
+            })
+        });
+    </script>
+</body>
+</html>

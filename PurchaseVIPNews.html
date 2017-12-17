@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Mua tin vip</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -12,7 +12,12 @@
     <div class="col-md-10 col-md-offset-1">
         <div class="well">
             <!--Table to capture username and password-->
-            <input id="newsQuantity" type="text" value="" />
+            <h4>Nhập số tiền bạn muốn mua: </h4>
+            <input id="newsQuantity" type="number" value="" />
+            <div>
+                <p>Giá 50.000đ mỗi tin</p>
+                <p>Thành tiền: <span id="sotienSpan"></span></p>
+            </div>
             <div id="paypal-button-container"></div>
             <script>
         paypal.Button.render({
@@ -66,6 +71,7 @@
                         // EmployeeService project before running it
                         success: function (response) {
                             alert("Mua thành công");
+                            window.location.href = "ProductManagerment.html";
                         },
                         // Display errors if any in the Bootstrap alert <div>
                         error: function (jqXHR) {
@@ -85,6 +91,12 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+
+            $('#newsQuantity').change(function () {
+                var sotienmoi = $('#newsQuantity').val();
+                sotienmoi = sotienmoi * 50000;
+                document.getElementById("sotienSpan").innerHTML = sotienmoi;
+            });
 
             $('#linkClose').click(function () {
                 $('#divError').hide('fade');

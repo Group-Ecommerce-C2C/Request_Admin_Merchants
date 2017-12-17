@@ -7,22 +7,39 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
-<body style="padding-top:20px">
-    <div class="col-md-10 col-md-offset-1">
-        Các đơn đặt hàng đang chờ xác nhận:
-        <div id="myWaitingOrder" class="well"></div>
+<body>
+    <div class="container">
+        <h3>Quản lý đơn hàng: </h3>
+        <p>Đây là khu vực để quản lý đơn hàng, để đến mục quản lý sản phẩm,<a href="ProductManagerment.html">hãy bấm vào đây</a></p>
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#home">Đơn hàng chờ xác nhận</a></li>
+            <li><a data-toggle="tab" href="#menu1">Đơn hàng đang được vận chuyển</a></li>
+            <li><a data-toggle="tab" href="#menu2">Các vật phẩm bị hủy</a></li>
+            <li><a data-toggle="tab" href="#menu3">Các đơn hàng đã xong hoàn toàn</a></li>
+        </ul>
 
-        Các đơn đặt hàng đã trên đường chuyển phát:
-        <div id="myShippingOrder" class="well"></div>
-
-        Các món hàng bị khách hàng hủy:
-        <div id="myCanceledOrder" class="well"></div>
-
-        Các đơn đặt hàng đã xong hoàn toàn:
-        <div id="myCompleteOrder" class="well"></div>
-        Lọc theo: <br>
-        Tháng: <input type="text" width="150" id="filterMonth"> Năm: <input type="text" width="150" id="filterYear"> Tổng tiền nhỏ nhất: <input type="text" width="150" id="filterMinTotal"> Tổng tiền lớn nhất: <input type="text" width="150" id="filterMaxTotal"> <button id="filterButton">Lọc</button>
+        <div class="tab-content">
+            <div id="home" class="tab-pane fade in active">
+                <h4>Các đơn đặt hàng đang chờ xác nhận:</h4>
+                <div id="myWaitingOrder" class="well"></div>
+            </div>
+            <div id="menu1" class="tab-pane fade">
+                <h4>Các đơn đặt hàng đã trên đường chuyển phát:</h4>
+                <div id="myShippingOrder" class="well"></div>
+            </div>
+            <div id="menu2" class="tab-pane fade">
+                <h4>Các món hàng bị khách hàng hủy:</h4>
+                <div id="myCanceledOrder" class="well"></div>
+            </div>
+            <div id="menu3" class="tab-pane fade">
+                <h4>Các đơn đặt hàng đã xong hoàn toàn:</h4>
+                <div id="myCompleteOrder" class="well"></div>
+                <h4>Lọc theo: </h4>
+                <div class="well">Tháng: <input type="number" width="150" id="filterMonth"> Năm: <input type="number" width="150" id="filterYear"> Tổng tiền nhỏ nhất: <input type="number" width="150" id="filterMinTotal"> Tổng tiền lớn nhất: <input type="number" width="150" id="filterMaxTotal"> <button id="filterButton">Lọc</button></div>
+            </div>
+        </div>
     </div>
+
 
 
     <script type="text/javascript">

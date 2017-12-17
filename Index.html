@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Index</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="danhnhapBlock"><a href="Login.html">Đăng nhập </a> <a href="Register.html">Đăng kí</a> </div>
+        <div id="thongtintaikhoanBlock"><a href="Userinfo.html"> | Thông tin tài khoản </a> <a href="Cart.html"> | Giỏ hàng</a> <a onclick="DangXuat()" href="#">| Đăng xuất</a></div>
+        <div>
+            <input id="findTXT" type="text"><button id="searchBTN">Tìm kiếm</button>
+            <h3>Các sản phẩm được tài trợ</h3>
+        </div>
+        <div class="bg-danger">
+           <div id="sponsoredProduct"></div>
+        </div>
+        <h3>Các sản phẩm mới nhất</h3>
+        <div class="bg-info">
+            <div id="newestProduct"></div>
+        </div>
+        <button onclick="previousNewestProductPage()">Trước</button>   <button onclick="nextNewestProductPage()">Sau</button>
+    </div>
+    <script>
+        var skip = 0;
+        var take = 10;
+        bienphu = "?sort=dsc&take10"
+        function previousNewestProductPage() {
+            skip = skip - 10;
+            bienphu = "?sort=dsc" + "&skip=" + skip + "&take=" + take;
+            LoadNewestProducts()
+        }
+        function nextNewestProductPage() {
+            skip = skip + 10;
+            bienphu = "?sort=dsc" + "&skip=" + skip + "&take=" + take;
+            LoadNewestProducts()
+        }
+        function LoadNewestProducts() {
+            $('#newestProduct').empty();
+            $.ajax({
+                url: 'http://localhost:25225/api/Products/SearchProduct'+bienphu,
+                method: 'GET',
+                contentType: 'application/json',
+                //headers: {
+                //    'Authorization': 'Bearer '
+                //        + localStorage.accessToken
+                //},
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#newestProduct').append('<div style="padding: 5px 5px 5px;"><a href="' + "http://localhost:33733/viewProduct.html?pid=" + val.ProductID + '"><img src="' + "http://localhost:25225/" + val.ProductImage + '" width = "40" height= "40"> Tên: ' + val.ProductName + ' | Giá: ' + val.Price + ' | SL còn: ' + val.Stock + '</a></div>');
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+        function LoadSponsoredProducts() {
+            $.ajax({
+                url: 'http://localhost:25225/api/SponsoredItems/LoadAllSponsoredItemsInTime',
+                method: 'GET',
+                contentType: 'application/json',
+                //headers: {
+                //    'Authorization': 'Bearer '
+                //        + localStorage.accessToken
+                //},
+                success: function (response) {
+                    $.each(response, function (index, val) {
+                        $('#sponsoredProduct').append('<div style="padding: 3px 3px 3px;"><a href="' + "http://localhost:33733/viewProduct.html?pid=" + val.product.ProductID + '"><img src="' + "http://localhost:25225/" + val.product.ProductImage + '" width = "40" height= "40"> Tên sản phẩm: ' + val.product.ProductName + ' | Giá: ' + val.product.Price + ' | Số lượng còn: ' + val.product.Stock + '</a></div>');
+                    });
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function DangXuat() {
+            window.localStorage.removeItem("accessToken");
+            window.location.href = "Login.html";
+        }
+
+        $(document).ready(function () {
+            LoadNewestProducts();
+            LoadSponsoredProducts()
+            $('#searchBTN').click(function () {
+                alert($('#findTXT').val());
+                window.location.href = "search.html?name=" + $('#findTXT').val();
+            })
+            if (localStorage.accessToken == null) {
+                $('#thongtintaikhoanBlock').hide(); thongtintaikhoanBlock
+            }
+            else
+            {
+                $('#danhnhapBlock').hide();
+            }
+        });
+    </script>
+</body>
+</html>
