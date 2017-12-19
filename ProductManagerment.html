@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <h3>Quản lý sản phẩm</h3>
-        <p> Đây là phần cho người bán quản lý các sản phẩm của mình, quản lý các sản phẩm đang được đăng vip và các chừng từ liên quan đến mua bán tin vip. <a href="MerchantOrderManagement.html">Để xem mục quản lý đơn hàng, hãy bấm vào đây</a></p>
+        <p> Đây là phần cho người bán quản lý các sản phẩm của mình, quản lý các sản phẩm đang được đăng vip và các chừng từ liên quan đến mua bán tin vip. <a href="MerchantOrderManagement.html">Để xem mục quản lý đơn hàng, hãy bấm vào đây</a>, để thay đổi thông tin tài khoản,  <a href="http://localhost:8000/account">bấm vào đây</a></p>
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#home">Danh sách sản phẩm</a></li>
         <li><a data-toggle="tab" href="#menu1">Danh sách đang đăng vip</a></li>
@@ -117,6 +117,7 @@
 
 
     <script type="text/javascript">
+        CheckMerchantRole();
         var additionParametter = "";
         $(document).ready(function () {
             LoadAllProduct();
@@ -137,7 +138,7 @@
             });
             $('#dangxuatButton').click(function () {
                 window.localStorage.removeItem("accessToken");
-                window.location.href = "Login.html"
+                window.location.href = "MerchantLogin.html"
             })
         });
 
@@ -268,6 +269,31 @@
             });
         }
 
+        function CheckMerchantRole() {
+            $.ajax({
+                url: 'http://localhost:25225/api/Account/AmIinole?role=Merchant',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    if (response == false) {
+                        document.write("Bạn không có quyền Merchant");
+                    }
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                    //if (response == false) {
+                    //    document.write("Có lỗi xảy ra");
+                    //}
+                }
+            });
+        }
+
         function LoadAllPromotedProduct() {
             var VIPproductList = $('#VIPproductList');
             VIPproductList.empty();
@@ -292,7 +318,7 @@
         }
         
     </script>
-        <div style='float: right;'><button id="dangxuatButton" class="button small">Đăng xuất Admin</button></div>
+        <div style='float: right;'><button id="dangxuatButton" class="button small">Đăng xuất Merchant</button></div>
  </div>
 </body>
 </html>

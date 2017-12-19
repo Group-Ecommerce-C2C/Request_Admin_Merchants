@@ -21,6 +21,7 @@
                 <li><a data-toggle="tab" href="#menu3">Loại Sản Phẩm</a></li>
                 <li><a data-toggle="tab" href="#menu4">Nhãn hiệu</a></li>
                 <li><a data-toggle="tab" href="#menu5">Danh sách sản phẩm</a></li>
+                <li><a data-toggle="tab" href="#menu6">Danh sách tài khoản</a></li>
             </ul>
 
             <div class="tab-content">
@@ -122,6 +123,27 @@
                     </table>
                     <input ng-model="TenProductCanTim" type="text"><button ng-click="TimProduct(TenProductCanTim)">Tìm</button>
                 </div>
+                <div id="menu6" class="tab-pane fade">
+                    <h3>Danh Sách các tài khoản mới đăng kí gần đây: </h3>
+                    <table class="table" appml-data="dataObj">
+                        <tr>
+                            <th>User ID</th>
+                            <th>Email</th>
+                            <th>Tên</th>
+                            <th>Địa chỉ</th>
+                            <th>Số điện thoại</th>
+                        </tr>
+                        <tr ng-repeat="n in names4">
+                            <td><a href="AdminBanAcc.html?uid={{n.UserID}}">{{n.UserID}}</a></td>
+                            <td>{{n.LoginEmail}}</td>
+                            <td>{{n.Name}}</td>
+                            <td>{{n.HomeAddress}}</td>
+                            <td>{{n.PhoneNumber}}</td>
+                            <!--<td ng-click="XoaSanPham(z.ProductID)">Xóa</td>-->
+                        </tr>
+                    </table>
+                    Nhập email muốn tìm: <input ng-model="TenUserEmailCanTim" type="text"><button ng-click="TimUser(TenUserEmailCanTim)">Tìm</button>
+                </div>
             </div>
             <div style='float: right;'><button id="dangxuatButton" class="button small">Đăng xuất Admin</button></div>
         </div>
@@ -152,6 +174,15 @@
                     url: "http://localhost:25225/api/Product?sort=dsc&take=10"
                 }).then(function mySuccess(response) {
                     $scope.names3 = response.data;
+                }, function myError(response) {
+                    alert(response.statusText);
+                });
+
+                $http({
+                    method: "GET",
+                    url: "http://localhost:25225/api/UserInfos?take=5"
+                }).then(function mySuccess(response) {
+                    $scope.names4 = response.data;
                 }, function myError(response) {
                     alert(response.statusText);
                 });
@@ -294,6 +325,17 @@
                         url: "http://localhost:25225/api/Products/SearchProduct?name="+tencantim
                     }).then(function mySuccess(response) {
                         $scope.names3 = response.data;
+                    }, function myError(response) {
+                        alert(response.statusText);
+                    });
+                };
+
+                $scope.TimUser = function (userid) {
+                    $http({
+                        method: "GET",
+                        url: "http://localhost:25225/api/UserInfos?email=" + userid
+                    }).then(function mySuccess(response) {
+                        $scope.names4 = response.data;
                     }, function myError(response) {
                         alert(response.statusText);
                     });

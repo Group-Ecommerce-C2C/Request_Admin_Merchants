@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Quản lý đơn hàng</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -43,7 +43,7 @@
 
 
     <script type="text/javascript">
-
+        CheckMerchantRole();
         function LoadWaitingOrders() {
             $('#myWaitingOrder').empty();
             $.ajax({
@@ -210,6 +210,31 @@
                 },
                 error: function (jqXHR) {
                     alert(jqXHR.responseText);
+                }
+            });
+        }
+
+        function CheckMerchantRole() {
+            $.ajax({
+                url: 'http://localhost:25225/api/Account/AmIinole?role=Merchant',
+                method: 'GET',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Bearer '
+                        + localStorage.accessToken
+                },
+
+                success: function (response) {
+                    if (response == false) {
+                        document.write("Bạn không có quyền Merchant");
+                    }
+                },
+                // Display errors if any in the Bootstrap alert <div>
+                error: function (jqXHR) {
+                    alert(jqXHR.responseText);
+                    //if (response == false) {
+                    //    document.write("Có lỗi xảy ra");
+                    //}
                 }
             });
         }
